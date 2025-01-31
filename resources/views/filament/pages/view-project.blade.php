@@ -38,21 +38,21 @@
         </div>
 
         {{-- 📌 Documents Section --}}
-        <div class="bg-white shadow-md rounded-lg p-4">
+        {{-- <div class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-lg font-semibold mb-2">Project Documents</h2>
             @if($record->documents->count() > 0)
-                <ul>
-                    @foreach($record->documents as $document)
-                        <li>
-                            <a href="{{ asset('storage/documents/' . $document->file_name) }}" target="_blank" class="text-blue-600 underline">
-                                {{ $document->file_name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+            <ul>
+                @foreach($record->documents as $document)
+                <li>
+                    <a href="{{ asset('storage/documents/' . $document->file_name) }}" target="_blank" class="text-blue-600 underline">
+                    {{ $document->file_name }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
             @else
-                <p>No documents uploaded for this project.</p>
+            <p>No documents uploaded for this project.</p>
             @endif
-        </div>
+        </div> --}}
     </div>
 </x-filament::page>

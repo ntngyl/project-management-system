@@ -9,11 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('document_projects', function (Blueprint $table) {
+        Schema::create('document_links', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('document_id');
+            $table->text('model');
+            $table->unsignedBigInteger('model_id');
             $table->timestamps();
+
+            $table->foreign('document_id')->references('id')->on('documents')->onDelete('cascade');
         });
     }
 
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('document_projects');
+        Schema::dropIfExists('document_links');
     }
 };

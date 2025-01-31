@@ -62,7 +62,7 @@ class Project extends Model implements HasCustomFields
 
     public function documents(): HasMany
     {
-        return $this->hasMany(\App\Models\Document\Document::class);
+        return $this->hasMany(\App\Models\Document::class);
     }
 
     public function tasks(): HasMany
@@ -100,6 +100,12 @@ class Project extends Model implements HasCustomFields
     {
         return $query->where('created_by', \Illuminate\Support\Facades\Auth::user()->id);
     }
+
+    public function linkedDocuments()
+    {
+        return $this->morphMany(DocumentLink::class, 'model');
+    }
+
 
     public function scopeAssigned($query)
     {

@@ -38,7 +38,7 @@ class ViewProject extends ViewRecord
         return [
             'project' => $this->record->toArray(), // Fetch all fields from the project model
             'tasks' => $this->record->tasks()->get(),
-            'documents' => $this->record->documents()->get(),
+            //            'documents' => $this->record->documents()->get(),
             'positions' => $this->record->userPositions()->get(),
             'owner' => $this->record->owner,
         ];

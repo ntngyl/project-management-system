@@ -20,6 +20,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Filament\Workspace\Pages\UnifiedLogin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Relaticle\CustomFields\CustomFieldsPlugin;
+use RalphJSmit\Filament\RecordFinder\FilamentRecordFinder;
 
 
 class WorkspacePanelProvider extends PanelProvider
@@ -60,6 +63,11 @@ class WorkspacePanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 \App\Http\Middleware\EnsureUserIsEmployee::class, // Custom Middleware
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
+                CustomFieldsPlugin::make(),
+                FilamentRecordFinder::make(),
             ]);
     }
 }
