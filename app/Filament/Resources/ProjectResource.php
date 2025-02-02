@@ -16,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -55,23 +56,27 @@ class ProjectResource extends Resource
                             ->required(),
                     ]),
 
-                    // TAB 2: Linked Documents using Record Finder Pro
-                    Tab::make('Linked Documents')->schema([
+                    // TAB 2: DCI-Based Document Management
+                    Tab::make('Project Documents')->schema([
                         Repeater::make('documents')
-                            ->relationship('documents') // Ensure the `documents()` relationship exists in the Project model
+                            ->relationship('linkedDocuments') // Ensure this exists in Project model
                             ->schema([
                                 RecordFinder::make('document_id')
-                                    ->label('Document')
-                                    ->relationship('documents') // Polymorphic relationship
+                                    ->label('Select Existing Document')
+                                    ->relationship('linkedDocuments') // Polymorphic relationship
                                     ->tableColumns([
                                         TextColumn::make('title')->label('Title'),
                                         TextColumn::make('document_number')->label('Number'),
                                         TextColumn::make('type')->label('Type'),
                                     ])
-                                    ->helperText('Select an existing document to link it to this project.')
-                                    ->required(),
+                                    ->helperText('Select an existing document to link it to this project.'),
+
+                                FileUpload::make('new_document')
+                                    ->directory('project-documents')
+                                    ->label('Upload New Document')
+                                    ->helperText('Upload a new document if not selecting an existing one.'),
                             ])
-                            ->columns(1)
+                            ->columns(2)
                             ->label('Project-Level Documents'),
                     ]),
                 ]),

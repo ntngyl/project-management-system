@@ -2,23 +2,21 @@
 
 namespace App\Policies;
 
-use Illuminate\Support\Facades\Log;
-
-use App\Models\Document\Document;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Spatie\Ray\Ray; // Spatie Ray for debugging
 
 class DocumentPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view any documents.
      */
     public function viewAny(User $user): bool
     {
-        // Check if the user has permission to view any documents
-        $userPermissions = $user->positions()
-            ->pluck('permissions')
-            ->flatten();
+        $userPermissions = $user->positions()->pluck('permissions')->flatten();
+
+        ray('Checking viewAny permission', $userPermissions)->green(); // Debugging
 
         return $userPermissions->contains('view-own-document') ||
             $userPermissions->contains('view-assigned-document') ||
@@ -26,78 +24,79 @@ class DocumentPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine whether the user can view a specific document.
      */
     public function view(User $user, Document $document): bool
     {
-        // Get the user's permissions for projects or tasks associated with the document
-        $userPermissions = $user->positions()
-            ->pluck('permissions')
-            ->flatten();
+        $userPermissions = $user->positions()->pluck('permissions')->flatten();
 
-        // Log the permissions for debugging
-        \Log::info('DocumentPolicy View Check', [
-            'user_id' => $user->id,
-            'document_id' => $document->id,
-            'permissions' => $userPermissions,
-        ]);
+        ray()->clearAll(); // Clears previous debug logs
+        ray([
+            'User ID' => $user->id,
+            'Document ID' => $document->id,
+            'Permissions' => $userPermissions,
+            'Linked to User' => $this->isLinkedToUser($user, $document),
+        ])->orange(); // Debugging output in Spatie Ray
 
-        // Check if the user has permission to view their own, assigned, or global documents
-        return $userPermissions->contains('view-own-document') && $document->created_by === $user->id ||
-            $userPermissions->contains('view-assigned-document') && $this->isAssignedToDocument($user, $document) ||
-            $userPermissions->contains('view-global-document');
+        return $userPermissions->contains('view-global-document') ||
+            ($userPermissions->contains('view-own-document') && $document->created_by === $user->id) ||
+            ($userPermissions->contains('view-assigned-document') && $this->isLinkedToUser($user, $document));
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine whether the user can create a document.
      */
     public function create(User $user): bool
     {
+        ray('Checking create permission for User ID: ' . $user->id)->blue(); // Debugging
+
         return $user->can('create-document');
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine whether the user can update the document.
      */
     public function update(User $user, Document $document): bool
     {
         $userPermissions = $user->positions()->pluck('permissions')->flatten();
 
-        return $userPermissions->contains('edit-own-document') && $document->created_by === $user->id ||
-            $userPermissions->contains('edit-assigned-document') && $this->isAssignedToDocument($user, $document) ||
-            $userPermissions->contains('edit-global-document');
+        ray([
+            'User ID' => $user->id,
+            'Document ID' => $document->id,
+            'Permissions' => $userPermissions,
+            'Linked to User' => $this->isLinkedToUser($user, $document),
+        ])->purple(); // Debugging
+
+        return $userPermissions->contains('edit-global-document') ||
+            ($userPermissions->contains('edit-own-document') && $document->created_by === $user->id) ||
+            ($userPermissions->contains('edit-assigned-document') && $this->isLinkedToUser($user, $document));
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can delete the document.
      */
     public function delete(User $user, ?Document $document = null): bool
     {
-        // Handle cases where $document is null
         if (is_null($document)) {
             return false;
         }
 
         $userPermissions = $user->positions()->pluck('permissions')->flatten();
 
-        return $userPermissions->contains('delete-own-document') && $document->created_by === $user->id ||
-            $userPermissions->contains('delete-assigned-document') && $this->isAssignedToDocument($user, $document) ||
-            $userPermissions->contains('delete-global-document');
-    }
+        ray([
+            'User ID' => $user->id,
+            'Document ID' => $document->id,
+            'Permissions' => $userPermissions,
+            'Linked to User' => $this->isLinkedToUser($user, $document),
+        ])->red(); // Debugging
 
-    private function isAssignedToDocument(User $user, Document $document): bool
-    {
-        return $document->assignedUsers()->where('user_id', $user->id)->exists() ||
-            $document->projects()->whereHas('userProjectPositions', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->exists() ||
-            $document->tasks()->whereHas('project.userProjectPositions', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })->exists();
+        return $userPermissions->contains('delete-global-document') ||
+            ($userPermissions->contains('delete-own-document') && $document->created_by === $user->id) ||
+            ($userPermissions->contains('delete-assigned-document') && $this->isLinkedToUser($user, $document));
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can restore the document.
      */
     public function restore(User $user, Document $document): bool
     {
@@ -105,10 +104,30 @@ class DocumentPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can permanently delete the document.
      */
     public function forceDelete(User $user, Document $document): bool
     {
         return false;
+    }
+
+    /**
+     * Check if the document is linked to the user through the polymorphic `document_links` table.
+     */
+    private function isLinkedToUser(User $user, Document $document): bool
+    {
+        $isLinked = $document->linkedEntities()
+            ->whereHas('userPositions', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->exists();
+
+        ray('Checking if document is linked to user:', [
+            'User ID' => $user->id,
+            'Document ID' => $document->id,
+            'Is Linked' => $isLinked,
+        ])->yellow(); // Debugging
+
+        return $isLinked;
     }
 }

@@ -56,8 +56,9 @@ class Document extends Model
 
     public function linkedProjects()
     {
-        return $this->morphToMany(Project::class, 'model', 'document_links', 'document_id', 'model_id');
+        return $this->morphedByMany(Project::class, 'model', 'document_links', 'document_id', 'model_id');
     }
+
 
     public function linkedTasks()
     {

@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UnifiedLoginController;
 //use App\Filament\Workspace\Pages\UnifiedLogin;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Models\DocumentRevision;
 
 
 Route::get('/', [UnifiedLoginController::class, 'showLoginForm'])->name('login');
@@ -16,16 +19,12 @@ Route::get('/workspace/login', function () {
     return redirect('/');
 });
 
-Route::get('/test', function () {
-    $document = \App\Models\Document\Document::find(2);
-    $revisions = $document->revisions;
-    $projects = $document->projects;
-    $tasks = $document->tasks;
 
-    return response()->json([
-        'document' => $document,
-        'revisions' => $revisions,
-        'projects' => $projects,
-        'tasks' => $tasks,
-    ]);
-});
+Route::get('/download-document/{revision}', function ($revisionId) {
+    $revision = DocumentRevision::findOrFail($revisionId);
+    $storedPath = $revision->stored_path;
+    if (!$storedPath) {
+        abort(404);
+    }
+    return Storage::download($storedPath, $revision->original_name ?? 'file');
+})->name('document.download');

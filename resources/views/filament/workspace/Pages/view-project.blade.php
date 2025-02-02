@@ -155,13 +155,50 @@
 
                     <!-- Documents Tab -->
                     <div x-show="activeTab === 'documents'" class="space-y-4">
-                        <h2 class="text-xl font-semibold text-gray-800">Documents</h2>
-                        <ul class="list-disc ml-6 space-y-2">
-                            <li><a href="#" class="text-blue-500 underline">Document 1</a></li>
-                            <li><a href="#" class="text-blue-500 underline">Document 2</a></li>
-                            <li><a href="#" class="text-blue-500 underline">Document 3</a></li>
-                        </ul>
+                        <h2 class="text-xl font-semibold text-gray-800">Project Documents (DCI Tracked)</h2>
+
+                        @if ($documents->isEmpty())
+                            <p>No documents available for this project.</p>
+                        @else
+                            <table class="w-full border-collapse border border-gray-200">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 px-4 py-2">Title</th>
+                                        <th class="border border-gray-300 px-4 py-2">Version</th>
+                                        <th class="border border-gray-300 px-4 py-2">Status</th>
+                                        <th class="border border-gray-300 px-4 py-2">Approval</th>
+                                        <th class="border border-gray-300 px-4 py-2">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($documents as $document)
+                                        <tr>
+                                            <td class="border border-gray-300 px-4 py-2">{{ $document->title }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">
+                                                {{ $document->revisions->last()?->version ?? 'N/A' }}
+                                            </td>
+                                            <td class="border border-gray-300 px-4 py-2">{{ ucfirst($document->status) }}</td>
+                                            <td class="border border-gray-300 px-4 py-2">
+                                                @if ($document->approval_date)
+                                                    Approved on {{ $document->approval_date->format('d M Y') }}
+                                                @else
+                                                    <span class="text-red-500">Pending</span>
+                                                @endif
+                                            </td>
+                                            <td class="border border-gray-300 px-4 py-2">
+                                                <a href="{{ url('/workspace/documents/' . $document->id) }}"
+                                                    class="text-blue-500 underline">
+                                                    View
+                                                 </a>
+
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
+
 
                     <!-- Items Tab -->
                     <div x-show="activeTab === 'items'" class="space-y-4">

@@ -14,7 +14,7 @@ class DocumentLink extends Model
 
     protected $fillable = [
         'document_id',
-        'model',
+        'model_type',
         'model_id',
     ];
 

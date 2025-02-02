@@ -2,9 +2,9 @@
 
 namespace App\Filament\Workspace\Resources;
 
-use App\Filament\Workspace\Resources\ProjectResource\Pages;
-use App\Filament\Workspace\Resources\ProjectResource\RelationManagers;
-use App\Models\Project;
+use App\Filament\Workspace\Resources\DocumentResource\Pages;
+use App\Filament\Workspace\Resources\DocumentResource\RelationManagers;
+use App\Models\Document;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProjectResource extends Resource
+class DocumentResource extends Resource
 {
-    protected static ?string $model = Project::class;
+    protected static ?string $model = Document::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -56,10 +56,10 @@ class ProjectResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProjects::route('/'),
-            'create' => Pages\CreateProject::route('/create'),
-            'edit' => Pages\EditProject::route('/{record}/edit'),
-            'view' => Pages\ViewProject::route('/{record}'), // Register ViewProject Page
+            'index' => Pages\ListDocuments::route('/'),
+            'create' => Pages\CreateDocument::route('/create'),
+            'edit' => Pages\EditDocument::route('/{record}/edit'),
+            'view' => Pages\ViewDocument::route('/{record}'), // Ensure View Page is Registered
         ];
     }
 }

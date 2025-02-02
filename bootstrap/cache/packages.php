@@ -194,6 +194,13 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
+  'parallax/filament-comments' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Parallax\\FilamentComments\\FilamentCommentsServiceProvider',
+    ),
+  ),
   'postare/blade-mdi' => 
   array (
     'providers' => 
@@ -295,6 +302,13 @@
     'providers' => 
     array (
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
+    ),
+  ),
+  'spatie/laravel-ray' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Spatie\\LaravelRay\\RayServiceProvider',
     ),
   ),
   'spatie/php-structure-discoverer' => 
